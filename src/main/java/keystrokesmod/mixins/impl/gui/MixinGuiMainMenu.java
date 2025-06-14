@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.awt.*;
@@ -27,8 +28,6 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
     @Unique
     private static final int LOGO_COLOR = new Color(255, 255, 255, 200).getRGB();
 
-    @Shadow
-    private int field_92022_t;
     @Shadow
     private GuiScreen field_183503_M;
 
@@ -67,19 +66,14 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
         ci.cancel();
     }
 
-    @Inject(method = "initGui", at = @At("HEAD"), cancellable = true)
-    public void onInitGui(CallbackInfo ci) {
-        if (!ModuleManager.clientTheme.isEnabled() || !ModuleManager.clientTheme.mainMenu.isToggled())
-            return;
+    @Redirect(method = "addSingleplayerMultiplayerButtons", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 2, remap = false))
+    private boolean removeRealmsButton(List<Object> instance, Object object) {
+        return false;
+    }
 
-        int j = this.height / 4 + 54;
-        this.buttonList.add(new GuiButton(1, this.width / 2 - 103, j, 200, 18, "SinglePlayer"));
-        this.buttonList.add(new GuiButton(2, this.width / 2 - 103, j + 22, 200, 18, "MultiPlayer"));
-        this.buttonList.add(new GuiButton(6, this.width / 2 - 103, j + 44, 200, 18, "Mods"));
-        this.buttonList.add(new GuiButton(0, this.width / 2 - 103, j + 66 + 12, 98, 18, "Options"));
-        this.buttonList.add(new GuiButton(4, this.width / 2 - 1, j + 66 + 12, 98, 18, "Quit"));
-
-        this.mc.setConnectedToRealms(false);
-        ci.cancel();
+    @Redirect(method = "addSingleplayerMultiplayerButtons", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 3, remap = false))
+    private boolean replaceModsButton(List<Object> instance, Object object) {
+        GuiButton old = (GuiButton) object;
+        return instance.add(new GuiButton(old.id, old.xPosition, old.yPosition, old.displayString));
     }
 }
