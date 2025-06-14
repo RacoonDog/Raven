@@ -50,8 +50,8 @@ public abstract class MixinSplashProgressThread {
         }
 
         final Object texture = Reflection.getDeclared(SplashProgress.class, "logoTexture");
-        final float width = (float) Reflection.call(texture, "getWidth") / 2.0F / 2.0F;
-        final float height = (float) Reflection.call(texture, "getHeight") / 2.0F / 2.0F;
+        final float width = (Integer) Reflection.call(texture, "getWidth") / 2.0F / 2.0F;
+        final float height = (Integer) Reflection.call(texture, "getHeight") / 2.0F / 2.0F;
 
         switch (type) {
             case 0:
